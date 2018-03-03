@@ -352,6 +352,34 @@ object Index extends App {
   // this requires positional accessors:
   val filteredPhones = phoneExtensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
   // we can get around that with case:
+  // note: this works because case statements are PartialFunctions!
   val filteredPhones2 = phoneExtensions.filter({ case (name, extension) => extension < 200 })
   println(filteredPhones2)
+
+  // function composition
+  def f(s: String) = "f(" + s + ")"
+  def g(s: String) = "g(" + s + ")"
+  val fComposeG = f _ compose g _
+  // prints f(g(neato!))
+  println(fComposeG("neato!"))
+  val fAndThenG = f _ andThen g _
+  // prints g(f(do one, then the other))
+  println(fAndThenG("do one, then the other"))
+
+  // a case statement is a subclass of function called a PartialFunction
+  // a collection of case statements = multiple PartialFunctions composed
+
+  // PartialFunction = a function that only accepts certain values of the defined type
+  // this function only accepts 1
+  val one: PartialFunction[Int, String] = { case 1 => "one" }
+  // isDefinedAt asks if the PartialFunction will accept a given argument
+  println(one.isDefinedAt(1))
+  println(one.isDefinedAt(2))
+
+  // orElse = used to compose PartialFunctions
+  val two: PartialFunction[Int, String] = { case 2 => "two" }
+  val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
+  val partial = one orElse two orElse wildcard
+  println(partial(2))
+  println(partial(10))
 }
